@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://www.springframework.org/schema/beans" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:cache="http://www.springframework.org/schema/cache" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans         
+		http://www.springframework.org/schema/beans/spring-beans-4.0.xsd       
+		http://www.springframework.org/schema/aop        
+		http://www.springframework.org/schema/aop/spring-aop-4.0.xsd        
+		http://www.springframework.org/schema/context        
+		http://www.springframework.org/schema/context/spring-context-4.0.xsd       
+		http://www.springframework.org/schema/tx         
+		http://www.springframework.org/schema/tx/spring-tx-4.0.xsd 
+       	http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache-4.0.xsd
+       	http://www.springframework.org/schema/task
+        http://www.springframework.org/schema/task/spring-task.xsd  ">
+    
+        <bean id="ds" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+        <property name="initialSize" value="1" />
+        <property name="minIdle" value="1" />
+        <property name="maxActive" value="20" />
+        <property name="maxWait" value="60000" />
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="60000" />
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="300000" />
+        <property name="validationQuery" value="SELECT 'x'" />
+        <property name="testWhileIdle" value="true" />
+        <property name="testOnBorrow" value="false" />
+        <property name="testOnReturn" value="false" />
+        <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+        <property name="poolPreparedStatements" value="true" />
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="100" />
+        <!-- 配置监控统计拦截的filters -->
+        <property name="filters" value="stat" />
+    </bean>
+ 	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<constructor-arg index="0">
+			<ref bean="ds" />
+		</constructor-arg>
+	</bean>
+	   
+
+	<!--   +++++++以下为缓存配置+++++++  -->
+	<!-- 进行EhCache缓存配置 -->
+	<bean id="cacheManagerFactory"	class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+		<property name="configLocation">
+			<value>classpath:ehcache.xml</value>
+		</property>
+		<!-- 由于其框架也使用了Ehcache, 保证各方都使用同一个缓存管理器 -->
+		<property name="shared" value="true" />
+	</bean>
+	<bean id="ehCacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">  
+        <property name="cacheManager" ref="cacheManagerFactory"/>
+    </bean>
+    <!-- EhCache缓存配置完成 -->
+    
+	<bean id="cacheManager" class="org.springframework.cache.support.CompositeCacheManager">
+		<property name="cacheManagers">
+			<list>
+				<ref bean="ehCacheManager" />
+			</list>
+		</property>
+		<property name="fallbackToNoOpCache" value="true" />
+	</bean>    
+    <!-- 开启注解缓存支持 -->
+    <cache:annotation-driven cache-manager="cacheManager" /> 
+    <!--   +++++++缓存配置完成+++++++  -->
+    
+    
+    <!-- 从数据库认证 -->
+    <bean id="UserPasswordAuthenticationHandlerProxy" class="com.ez.cas.support.authentication.handler.UserPasswordAuthenticationHandlerProxy">
+    	<constructor-arg index="0" ref="AuthenticationHandlerFromDB"></constructor-arg>
+    	<constructor-arg index="1" ref="PlatformPersonIdAuthenticationHandlerProxy"></constructor-arg>
+    </bean>
+    <bean id="ShiroMD5PasswordEncoder" class="com.ez.cas.support.authentication.handler.db.ShiroMD5PasswordEncoder">
+        <property name="algorithmName" value="${user.password.algorithmName}" ></property>
+        <property name="hashIterations" value="${user.password.hashIterations}" ></property>
+    </bean>
+    <bean id="AuthenticationHandlerFromDB" class="com.ez.cas.support.authentication.handler.db.AuthenticationHandlerFromDB">
+    	<constructor-arg index="0" ref="jdbcTemplate"></constructor-arg>
+    	<constructor-arg index="1" ref="ShiroMD5PasswordEncoder"></constructor-arg>
+    	<property name="sqls">
+    	    <list>
+    	        <value>SELECT id,userName name,pwd password FROM idm_user t1 WHERE t1.userName =?</value>
+    	        <value>SELECT t1.id id,t1.userName name,t1.pwd password  FROM idm_user t1 INNER JOIN idm_userDetail t2 ON t1.id=t2.userId WHERE mobilePhone=?</value>
+    	        <value>SELECT t1.id id,t1.userName name,t1.pwd password  FROM idm_user t1 INNER JOIN idm_userDetail t2 ON t1.id=t2.userId WHERE email=?</value>
+    	    </list>
+    	</property>
+    	<property name="userDetailSql" value="SELECT b.id,b.userName,a.* FROM idm_userdetail a INNER JOIN idm_user b ON a.userId=b.id WHERE b.userName=?"></property>    	
+    </bean>    
+    
+    <!-- 通过天喻大数据中心认证 -->
+    <bean id="PlatformPersonIdAuthenticationHandlerProxy" class="com.ez.cas.support.authentication.handler.PlatformPersonIdAuthenticationHandlerProxy">
+     	<constructor-arg index="0" ref="AuthenticationHandlerFromPlatform"></constructor-arg>
+    	<constructor-arg index="1" ref="EduPlateformAuthenticationHandlerProxy"></constructor-arg>   
+    </bean>
+    <bean id="AuthenticationHandlerFromPlatform" class="com.ez.cas.support.authentication.handler.http.AuthenticationHandlerFromPlatform">
+    </bean>
+    
+    <!-- 通过天喻教育云平台认证 -->
+    <bean id="EduPlateformAuthenticationHandlerProxy" class="com.ez.cas.support.authentication.handler.EduPlateformAuthenticationHandlerProxy">
+        <constructor-arg index="0" ref="EduPlatformBuilder"></constructor-arg>
+    </bean>
+    <bean id="EduPlatformBuilder" class="com.ez.cas.support.authentication.handler.EduPlatformBuilder">
+        <constructor-arg index="0" ref="jdbcTemplate"></constructor-arg>
+    </bean>
+    
+    <bean id="EasytntFaceAuthenticationHandler" class="com.ez.cas.support.authentication.handler.EasytntFaceAuthenticationHandler">
+        <constructor-arg index="0" ref="UserPasswordAuthenticationHandlerProxy"></constructor-arg>
+    </bean>
+    
+    <bean id="CredentialBuilder" class="com.ez.cas.support.authentication.principal.CredentialBuilder">
+        <constructor-arg>
+            <list>
+                <bean class="com.ez.cas.support.authentication.principal.EzUserPasswordCredential">
+                    <constructor-arg index="0" value="${user.name.param}"></constructor-arg>
+                    <constructor-arg index="1" value="${user.password.param}"></constructor-arg>
+                </bean>
+                <bean class="com.ez.cas.support.authentication.principal.EduPlatformCredential">
+                    <property name="tkParam" value="${user.tk.param}"></property>
+                    <property name="ticketParam" value="${user.ticket.param}"></property>
+                    <property name="platformcodeParam" value="${user.platformcode.param}"></property>
+                </bean>
+                <bean class="com.ez.cas.support.authentication.principal.PlatformPersonidCredential">
+                    <constructor-arg index="0" value="${user.personid.param}"></constructor-arg>
+                    <constructor-arg index="1" value="${user.lt.param}"></constructor-arg>
+                    <constructor-arg index="2" value="${user.execution.param}"></constructor-arg>        
+                    <constructor-arg index="3" value="${user.platformUrl.param}"></constructor-arg>                        
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+  
+    <bean id="EzLoginController" class="com.ez.cas.support.web.EzCasLoginController">
+        <constructor-arg index="0" ref="centralAuthenticationService"></constructor-arg>
+	    <constructor-arg index="1" ref="ticketGrantingTicketCookieGenerator"></constructor-arg>
+	    <constructor-arg index="2" ref="CredentialBuilder"></constructor-arg>
+   </bean>    
+  
+</beans>

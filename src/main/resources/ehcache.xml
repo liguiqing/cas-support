@@ -1,0 +1,7 @@
+<ehcache>
+	<diskStore path="java.io.tmpdir" />
+	<cache name="UserCache" maxEntriesLocalHeap="2000"
+		eternal="false" timeToIdleSeconds="3600" timeToLiveSeconds="0"
+		overflowToDisk="false" statistics="true">
+	</cache>		
+</ehcache>

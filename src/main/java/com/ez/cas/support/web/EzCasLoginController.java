@@ -51,17 +51,19 @@ public class EzCasLoginController extends AbstractController{
 	
 	protected void bindTicketGrantingTicket(HttpServletRequest request, HttpServletResponse response)throws Exception {
 		Credential credential = this.credentialBuilder.build(request);
-		if(credential != null)
-			this.logger.debug(credential.toString());
-		else {
+		if(credential == null) {
 			this.logger.warn("Credential is null !");
+			return ;
 		}
+		this.logger.debug(credential.toString());
 		TicketGrantingTicket ticketGrantingTicket = this.centralAuthenticationService.createTicketGrantingTicket(credential);
 		this.ticketGrantingTicketCookieGenerator.addCookie(request, response, ticketGrantingTicket.getId());
 	}
 
 	protected String getSignInView(HttpServletRequest request) {
 		String service = ServletRequestUtils.getStringParameter(request, "service", "");
+		if(service == null)
+			service = ServletRequestUtils.getStringParameter(request, "ezService", "");
 		return "redirect:/login" + (service.length() > 0 ? "?service=" + service : "");
 	}
 

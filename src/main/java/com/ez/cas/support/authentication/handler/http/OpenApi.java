@@ -10,11 +10,14 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.jayway.jsonpath.JsonPath;
 
 public class OpenApi {
-
+	private static Logger logger = LoggerFactory.getLogger(OpenApi.class);
+	
 	private static class Holder{
 		private static OpenApi instance = new OpenApi();
 	}
@@ -46,8 +49,10 @@ public class OpenApi {
 			HttpEntity entity = response.getEntity();
 			if (entity != null) {
 				String json  = EntityUtils.toString(response.getEntity());
-				return JsonPath.parse(json).read("$.tokenInfo.accessToken");
+				return JsonPath.read(json,"$.tokenInfo.accessToken");
 			}
+		}catch(Exception ex){
+			logger.warn(ex.getMessage());
 		}finally {
 			response.close();
 		}

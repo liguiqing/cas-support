@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 
 import com.google.gson.Gson;
+import com.jayway.jsonpath.JsonPath;
 
 /**
  * 
@@ -35,6 +36,10 @@ public class AuthenticationHandlerFromPlatform {
 	
 	private  String userInterFace = "/user/";
 	
+	private InvalidOrgSelector orgSelector;
+	
+	private Gson gson = new Gson();
+	
 	public AuthenticationHandlerFromPlatform() {
 		
 	}
@@ -43,35 +48,53 @@ public class AuthenticationHandlerFromPlatform {
 		this.userInterFace = userInterFace;
 	}
 	
-	@Cacheable(value = "UserCache",key = "#persionId")
+	public AuthenticationHandlerFromPlatform(InvalidOrgSelector orgSelector,String userInterFace) {
+		this.orgSelector = orgSelector;
+		this.userInterFace = userInterFace;
+	}
+	
+	public AuthenticationHandlerFromPlatform(InvalidOrgSelector orgSelector) {
+		this.orgSelector = orgSelector;
+	}
+	
+	@Cacheable(value = "UserCache",key = "#persionId",unless="#result == null")
 	public Map<String,Object> doAuthentication(String platform, String persionId) {
-		CloseableHttpClient httpclient = HttpClients.createDefault();
+		String userJson = getUserJson(platform +this.userInterFace+ persionId);
+		String orgId = JsonPath.read(userJson, "$.userinfo.orgaid");
+		Boolean b = orgSelector.isValidOrg(orgId);
+		if(b) {
+			HashMap<String,Object> user = gson.fromJson(userJson, HashMap.class);
+			user.put("from", "bdplatform");
+			return user;
+		}
+		return null;
 		
+	}
+	
+	private String getUserJson(String url) {
+		CloseableHttpClient httpclient = HttpClients.createDefault();
 		try {
-			HttpGet httpget = new HttpGet(platform +this.userInterFace+ persionId);
+			HttpGet httpget = new HttpGet(url);
 			logger.debug("executing request {}", httpget.getURI());
 			CloseableHttpResponse response = httpclient.execute(httpget);
 			try {
 				StatusLine status = response.getStatusLine();
 				if (status.getStatusCode() != 200) {
-					logger.error("Principal ID from {} {} mismatch",platform,persionId);
+					logger.error("Principal ID from {} ",url);
 					return null;
 				}
 					
 				HttpEntity entity = response.getEntity();
 				if (entity != null) {
-					Gson gson = new Gson();
-					String userDataJson = EntityUtils.toString(entity);
-					HashMap<String,Object> json = gson.fromJson(userDataJson, HashMap.class);
-					logger.info("{}", json);
-					if (!"success".equalsIgnoreCase(json.get("desc") + "")) {
-						logger.warn("Principal ID from {} {} mismatch",platform,persionId);
+					String json = EntityUtils.toString(entity);
+					
+					if (!"000000".equals( JsonPath.read(json, "$.result"))) {
+						logger.error("Principal ID from {} ",url);
 						return null;
 					}
-					json.put("from", "bd");
+					
 					return json;
 				}
-
 			} finally {
 				response.close();
 			}
@@ -90,5 +113,9 @@ public class AuthenticationHandlerFromPlatform {
 			}
 		}
 		return null;
+	}
+
+	public void setUserInterFace(String userInterFace) {
+		this.userInterFace = userInterFace;
 	}
 }

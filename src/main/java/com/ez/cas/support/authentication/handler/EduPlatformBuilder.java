@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import com.ez.cas.support.authentication.handler.http.AuthenticationHandlerFromEduPlatform;
+import com.ez.cas.support.authentication.handler.http.InvalidOrgSelector;
 
 /**
  * 
@@ -25,16 +26,19 @@ public class EduPlatformBuilder {
 	private static Logger logger = LoggerFactory.getLogger(EduPlatformBuilder.class);
 	
 	private JdbcTemplate jdbcTemplate;
+	
+	private InvalidOrgSelector orgSelector;
 
 	private String sql = "select appId,appKey from base_educloud where address = ? and  platformCode=? and active=1";
 	
 	private String sql2 = "select appId,appKey,address from base_educloud where  platformCode=? and active=1";
 
-	public EduPlatformBuilder(JdbcTemplate jdbcTemplate) {
+	public EduPlatformBuilder(JdbcTemplate jdbcTemplate,InvalidOrgSelector orgSelector) {
 		this.jdbcTemplate = jdbcTemplate;
+		this.orgSelector = orgSelector;
 	}
 	
-	@Cacheable(value = "CloudCache",key = "#address")
+	@Cacheable(value = "CloudCache",key = "#address" ,unless="#result == null")
 	public AuthenticationHandlerFromEduPlatform getEdutPlatform(final String address, final String platformCode) {
 		try {
 			return jdbcTemplate.queryForObject(sql, new Object[] {address,platformCode},new RowMapper<AuthenticationHandlerFromEduPlatform>() {
@@ -42,7 +46,7 @@ public class EduPlatformBuilder {
 				public AuthenticationHandlerFromEduPlatform mapRow(ResultSet rs, int arg1) throws SQLException {
 					String appId = rs.getString("appId");
 					String appKey = rs.getString("appKey");
-					return new AuthenticationHandlerFromEduPlatform(address,appId,appKey);
+					return new AuthenticationHandlerFromEduPlatform(orgSelector,address,appId,appKey);
 				}			
 			});
 		}catch(Exception e) {
@@ -60,12 +64,16 @@ public class EduPlatformBuilder {
 					String appId = rs.getString("appId");
 					String appKey = rs.getString("appKey");
 					String address = rs.getString("address");
-					return new AuthenticationHandlerFromEduPlatform(address,appId,appKey);
+					return new AuthenticationHandlerFromEduPlatform(orgSelector,address,appId,appKey);
 				}			
 			});
 		}catch(Exception e) {
 			logger.warn(e.getMessage());
 		}
 		return null;
+	}
+	
+	public void setOrgSelector(InvalidOrgSelector orgSelector) {
+		this.orgSelector = orgSelector;
 	}
 }

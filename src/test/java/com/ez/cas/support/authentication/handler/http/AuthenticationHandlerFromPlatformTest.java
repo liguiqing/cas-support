@@ -4,9 +4,15 @@
  **/
 package com.ez.cas.support.authentication.handler.http;
 
+import static org.junit.Assert.*;
+
 import java.util.Map;
 
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ContextHierarchy;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 /**
  * 
@@ -14,11 +20,18 @@ import org.junit.Test;
  * @Date 2017年4月12日
  * @Version 
  */
-public class AuthenticationHandlerFromPlatformTest {
+
+@ContextHierarchy({
+	@ContextConfiguration(locations = {"classpath:META-INF/spring/ezConfiguration.xml"})
+})
+public class AuthenticationHandlerFromPlatformTest extends AbstractJUnit4SpringContextTests{
+	
+	@Autowired
+	AuthenticationHandlerFromPlatform platform ;
 	
 	@Test
 	public void test()throws Exception{
-		AuthenticationHandlerFromPlatform platform = new AuthenticationHandlerFromPlatform();
-		Map<String,Object> result = platform.doAuthentication("http://www.wuhaneduyun.cn:10013/aamif/rest", "F259F9A5229D7692E04010AC73D40970");
+        assertNotNull(platform);
+		Map<String,Object> result = platform.doAuthentication("http://www.wuhaneduyun.cn:10013/aamif/rest", "11ad039a5bdc4497aa1b01f61246283c");
 	}
 }

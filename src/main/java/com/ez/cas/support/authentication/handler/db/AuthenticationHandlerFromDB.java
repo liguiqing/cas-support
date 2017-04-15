@@ -53,7 +53,7 @@ public class AuthenticationHandlerFromDB {
 		return Boolean.FALSE;
 	}
 	
-	@Cacheable(value = "UserCache",key = "#username")
+	@Cacheable(value = "UserCache",key = "#username",unless="#result == null")
 	public Map<String, Object> getUserDetail(String username) {
 		Map<String,Object> user =  jdbcTemplate.queryForMap(this.userDetailSql, username);
 		user.put("from", "db");

@@ -15,6 +15,7 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 import com.ez.cas.support.authentication.handler.EduPlatformBuilder;
 import com.ez.cas.support.authentication.handler.http.AuthenticationHandlerFromEduPlatform;
+import com.ez.cas.support.authentication.handler.http.InvalidOrgSelector;
 /**
  * 
  * @author liguiqing
@@ -29,9 +30,12 @@ public class EduPlatformBuilderTest extends AbstractJUnit4SpringContextTests {
 	@Autowired
 	private JdbcTemplate jdbcTemplate;
 	
+	@Autowired
+	private InvalidOrgSelector orgSelector; 
+	
 	@Test
 	public void test()throws Exception{
-		EduPlatformBuilder builder = new EduPlatformBuilder(jdbcTemplate);
+		EduPlatformBuilder builder = new EduPlatformBuilder(jdbcTemplate,orgSelector);
 		AuthenticationHandlerFromEduPlatform eduPlatform = builder.getEdutPlatform("http://open.sw-cloud.net:30001", "469026");
 		assertNotNull(eduPlatform);
 	}

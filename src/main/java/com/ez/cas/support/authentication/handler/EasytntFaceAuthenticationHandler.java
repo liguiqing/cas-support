@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.security.auth.login.FailedLoginException;
 
+import org.jasig.cas.authentication.AccountDisabledException;
 import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.authentication.HandlerResult;
 import org.jasig.cas.authentication.PreventedException;
@@ -44,8 +45,10 @@ public class EasytntFaceAuthenticationHandler extends AbstractPreAndPostProcessi
 	protected HandlerResult doAuthentication(Credential credential) throws GeneralSecurityException, PreventedException {
 		Map<String,Object> result = proxy.doAuthentication((EzCredential)credential);
 		logger.debug("Authentication for {}",result);
-		if(result == null)
-			throw new FailedLoginException(getErrorMessage(credential)); 
+		if(result == null) {
+			handlerError(credential);
+		}
+		//	throw new FailedLoginException(getErrorMessage(credential)); 
 		Gson gson = new Gson();
 		String userJson = gson.toJson(result);
 		HashMap<String,Object> attrs = new HashMap<>();
@@ -55,18 +58,17 @@ public class EasytntFaceAuthenticationHandler extends AbstractPreAndPostProcessi
 		return handlerResult;
 	}
 
-	private String getErrorMessage(Credential credential) {
+	private void handlerError(Credential credential) throws GeneralSecurityException, PreventedException{
 		if(credential instanceof EduPlatformCredential) {
-			return "您暂时还无法使用智能阅卷应用，可能的原因是：\r\n1、您的学校没有购买我们的应用服务;\r\n2、您的学校没有及时更新您的信息;";
+			throw new AccountDisabledException();
+			//return "您暂时还无法使用智能阅卷应用，可能的原因是：\r\n1、您的学校没有购买我们的应用服务;\r\n2、您的学校没有及时更新您的信息;";
 		}
 		
 		if(credential instanceof PlatformPersonidCredential) {
-			return "您暂时还无法使用智能阅卷系统，可能的原因是：\r\n1、您的学校没有购买我们阅卷的服务;\r\n2、您的学校没有及时更新您的信息;";
+			throw new AccountDisabledException();
+			//return "您暂时还无法使用智能阅卷系统，可能的原因是：\r\n1、您的学校没有购买我们阅卷的服务;\r\n2、您的学校没有及时更新您的信息;";
 		}
+		throw new FailedLoginException();
 		
-		if(credential instanceof EzUserPasswordCredential) {
-			return "用户名或者密码错误！";
-		}
-		return "登录失败！";
 	}
 }

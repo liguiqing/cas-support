@@ -61,7 +61,7 @@ public class EzCasLoginController extends AbstractController{
 	}
 
 	protected String getSignInView(HttpServletRequest request) {
-		String service = ServletRequestUtils.getStringParameter(request, "service", "");
+		String service = ServletRequestUtils.getStringParameter(request, "service", null);
 		if(service == null)
 			service = ServletRequestUtils.getStringParameter(request, "ezService", "");
 		return "redirect:/login" + (service.length() > 0 ? "?service=" + service : "");

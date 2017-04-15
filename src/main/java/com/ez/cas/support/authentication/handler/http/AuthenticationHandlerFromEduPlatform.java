@@ -59,7 +59,10 @@ public class AuthenticationHandlerFromEduPlatform {
 	
 	private Gson gson = new Gson();
 	
-	public AuthenticationHandlerFromEduPlatform(String eduHomeUrl,String appId, String appKey) {
+	private InvalidOrgSelector orgSelector;
+	
+	public AuthenticationHandlerFromEduPlatform(InvalidOrgSelector orgSelector,String eduHomeUrl,String appId, String appKey) {
+		this.orgSelector = orgSelector;
 		this.eduHomeUrl = eduHomeUrl;
 		this.appId = appId;
 		this.appKey = appKey;
@@ -71,8 +74,8 @@ public class AuthenticationHandlerFromEduPlatform {
 		this.teachingUrl = this.eduHomeUrl + "/baseInfo/user/getTeachingInfo?accessToken=";
 	}
 	
-	public AuthenticationHandlerFromEduPlatform(String eduHomeUrl,String appId, String appKey,int retryIntervalByMin) {
-		this(eduHomeUrl,appId,appKey);
+	public AuthenticationHandlerFromEduPlatform(InvalidOrgSelector orgSelector,String eduHomeUrl,String appId, String appKey,int retryIntervalByMin) {
+		this(orgSelector,eduHomeUrl,appId,appKey);
 		this.retryIntervalByMin = retryIntervalByMin;
 	}
 	
@@ -93,12 +96,17 @@ public class AuthenticationHandlerFromEduPlatform {
 			});
 	}
 	
-	@Cacheable(value = "UserCache", key = "#personId")
+	@Cacheable(value = "UserCache", key = "#personId",unless="#result == null")
 	public Map<String, Object> getUserInfo(CloseableHttpClient httpclient,String personId){
 		HashMap<String,Object> userInfo = new HashMap<String,Object>();
 		
 		String user = getUser(httpclient, personId);
 		String orgId = JsonPath.parse(user).read("$.orgId");
+		Boolean b = this.orgSelector.isValidOrg(orgId);
+		if(!b) {
+			return null;
+		}
+		
 		String org = getOrgInfo(httpclient, orgId);
 		String teaching = getTeachingInfo(httpclient, personId);
 		
@@ -200,49 +208,6 @@ public class AuthenticationHandlerFromEduPlatform {
 			logger.error(e.getMessage());
 		} 
 		return null;
-		
-		
-//		
-//		HttpPost httpPost = new HttpPost(url);
-//		httpPost.setHeader("Content-Type", "application/json; charset=utf-8");
-//		StringEntity entity = new StringEntity(args, "utf-8") ;// 解决中文乱码问题
-//		//entity.setContentEncoding("UTF-8");
-//		//entity.setContentType("application/json");
-//		httpPost.setEntity(entity);
-//		CloseableHttpResponse response = null;
-//		try {
-//			response = httpclient.execute(httpPost);
-//			logger.debug("executing request {}", httpPost.getURI());
-//			StatusLine status = response.getStatusLine();
-//			if (status.getStatusCode() != 200) {
-//				logger.error(String.format("Request Fail, HttpStatusCode:[%d]",  status.getStatusCode()));
-//				return null;
-//			}
-//			
-//			HttpEntity resEntity = response.getEntity();
-//			if(resEntity != null) {
-//				String json = EntityUtils.toString(entity);
-//				logger.debug("request result {}",json);
-//				return after.execute(json);
-////				
-////				if(responseSuccess(json)) {
-////					return  JsonPath.read(json, "$.retDesc.userInfo.personId");
-////				}
-////				String retCode =   JsonPath.read(json, "$.retCode");
-////				String retDesc =   JsonPath.read(json, "$.retDesc");
-////				logger.warn(String.format(" validate fail, retCode:[%s], retDesc:[%s]",  retCode,retDesc));				
-//			}
-//			
-//		}catch(Exception e) {
-//			logger.warn(e.getMessage());
-//		} finally {
-//			try {
-//				response.close();
-//			} catch (IOException e) {
-//				logger.warn(e.getMessage());
-//			}
-//		}
-//		return null;
 	}
 	
 	private Boolean responseSuccess(String json) {
@@ -277,4 +242,8 @@ public class AuthenticationHandlerFromEduPlatform {
 	private  interface AfterHttpPost{
 		String  execute(String json);
 	} 
+	
+	public void setOrgSelector(InvalidOrgSelector orgSelector) {
+		this.orgSelector = orgSelector;
+	}
 }

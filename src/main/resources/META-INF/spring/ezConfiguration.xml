@@ -43,7 +43,6 @@
 			<ref bean="ds" />
 		</constructor-arg>
 	</bean>
-	   
 
 	<!--   +++++++以下为缓存配置+++++++  -->
 	<!-- 进行EhCache缓存配置 -->
@@ -94,12 +93,18 @@
     	<property name="userDetailSql" value="SELECT b.id,b.userName,a.* FROM idm_userdetail a INNER JOIN idm_user b ON a.userId=b.id WHERE b.userName=?"></property>    	
     </bean>    
     
+    <bean id="InvalidOrgSelector" class="com.ez.cas.support.authentication.handler.http.InvalidOrgSelector">
+    	<constructor-arg index="0" ref="jdbcTemplate"></constructor-arg>
+    </bean>
+    
     <!-- 通过天喻大数据中心认证 -->
     <bean id="PlatformPersonIdAuthenticationHandlerProxy" class="com.ez.cas.support.authentication.handler.PlatformPersonIdAuthenticationHandlerProxy">
      	<constructor-arg index="0" ref="AuthenticationHandlerFromPlatform"></constructor-arg>
     	<constructor-arg index="1" ref="EduPlateformAuthenticationHandlerProxy"></constructor-arg>   
     </bean>
     <bean id="AuthenticationHandlerFromPlatform" class="com.ez.cas.support.authentication.handler.http.AuthenticationHandlerFromPlatform">
+        <constructor-arg index="0" ref="InvalidOrgSelector"></constructor-arg>
+        <constructor-arg index="1" value="${platform.db.userface}"></constructor-arg>          
     </bean>
     
     <!-- 通过天喻教育云平台认证 -->
@@ -108,6 +113,7 @@
     </bean>
     <bean id="EduPlatformBuilder" class="com.ez.cas.support.authentication.handler.EduPlatformBuilder">
         <constructor-arg index="0" ref="jdbcTemplate"></constructor-arg>
+        <constructor-arg index="1" ref="InvalidOrgSelector"></constructor-arg>
     </bean>
     
     <bean id="EasytntFaceAuthenticationHandler" class="com.ez.cas.support.authentication.handler.EasytntFaceAuthenticationHandler">
@@ -141,5 +147,5 @@
 	    <constructor-arg index="1" ref="ticketGrantingTicketCookieGenerator"></constructor-arg>
 	    <constructor-arg index="2" ref="CredentialBuilder"></constructor-arg>
    </bean>    
-  
+
 </beans>

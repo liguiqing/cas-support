@@ -118,7 +118,12 @@
 			<groupId>org.springframework.webflow</groupId>
 			<artifactId>spring-binding</artifactId>
 			<version>2.4.1.RELEASE</version>
-		</dependency>				
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.webflow</groupId>
+			<artifactId>spring-webflow</artifactId>
+			<version>2.4.1.RELEASE</version>
+		</dependency>					
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -330,13 +335,34 @@
 				<activeByDefault>true</activeByDefault><!--默认启用的是dev环境配置 -->
 			</activation>
 		</profile>
-		<!-- 生产环境 -->
+		<!-- 测试版环境 -->
+		<profile>
+			<id>alpha</id>
+			<properties>
+				<env>alpha</env>
+			</properties>
+		</profile>
+		<!-- 演示版环境 -->
+		<profile>
+			<id>beta</id>
+			<properties>
+				<env>beta</env>
+			</properties>
+		</profile>				
+		<!-- 生产环境 天喻 -->
 		<profile>
 			<id>production</id>
 			<properties>
 				<env>production</env>
 			</properties>
 		</profile>
+		<!-- 生产环境 海南昌江 -->
+		<profile>
+			<id>hncj</id>
+			<properties>
+				<env>hncj</env>
+			</properties>
+		</profile>		
 		<!-- 测试环境 -->
 		<profile>
 			<id>test</id>

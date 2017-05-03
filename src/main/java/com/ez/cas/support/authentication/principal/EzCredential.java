@@ -18,4 +18,6 @@ public interface  EzCredential extends Credential {
 
 	public Credential newInstanceOf(HttpServletRequest request) ;
 	
+	public String fromUrl();
+	
 }

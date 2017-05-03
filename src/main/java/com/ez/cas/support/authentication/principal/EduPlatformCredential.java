@@ -126,4 +126,9 @@ public class EduPlatformCredential extends AbstractEzCredenttial {
 	public String getS() {
 		return s;
 	}
+
+	@Override
+	public String fromUrl() {
+		return this.referer;
+	}
 }

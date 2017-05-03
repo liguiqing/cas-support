@@ -18,7 +18,6 @@ import org.jasig.cas.authentication.handler.support.AbstractPreAndPostProcessing
 
 import com.ez.cas.support.authentication.principal.EduPlatformCredential;
 import com.ez.cas.support.authentication.principal.EzCredential;
-import com.ez.cas.support.authentication.principal.EzUserPasswordCredential;
 import com.ez.cas.support.authentication.principal.PlatformPersonidCredential;
 import com.google.gson.Gson;
 
@@ -43,10 +42,11 @@ public class EasytntFaceAuthenticationHandler extends AbstractPreAndPostProcessi
 
 	@Override
 	protected HandlerResult doAuthentication(Credential credential) throws GeneralSecurityException, PreventedException {
-		Map<String,Object> result = proxy.doAuthentication((EzCredential)credential);
+		EzCredential myCredential = (EzCredential)credential;
+		Map<String,Object> result = proxy.doAuthentication(myCredential);
 		logger.debug("Authentication for {}",result);
 		if(result == null) {
-			handlerError(credential);
+			handlerError(myCredential);
 		}
 		//	throw new FailedLoginException(getErrorMessage(credential)); 
 		Gson gson = new Gson();

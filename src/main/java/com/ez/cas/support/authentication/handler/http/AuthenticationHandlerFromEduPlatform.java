@@ -102,10 +102,10 @@ public class AuthenticationHandlerFromEduPlatform {
 		
 		String user = getUser(httpclient, personId);
 		String orgId = JsonPath.parse(user).read("$.orgId");
-		Boolean b = this.orgSelector.isValidOrg(orgId);
-		if(!b) {
-			return null;
-		}
+		//Boolean b = this.orgSelector.isValidOrg(orgId);
+		//if(!b) {
+		//	return null;
+		//}
 		
 		String org = getOrgInfo(httpclient, orgId);
 		String teaching = getTeachingInfo(httpclient, personId);

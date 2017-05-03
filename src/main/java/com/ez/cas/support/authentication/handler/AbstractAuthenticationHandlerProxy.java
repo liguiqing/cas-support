@@ -22,8 +22,10 @@ public abstract class AbstractAuthenticationHandlerProxy implements Authenticati
 	public Map<String, Object> doAuthentication(EzCredential credential) {
 		if(this.supports(credential)) {
 			Map<String,Object> result = authentication(credential);
-			if(result != null)
+			if(result != null) {
+				result.put("fromUrl", credential.fromUrl());
 				return result; 
+			}
 		}
 		
 		if(this.nextHandler !=null)

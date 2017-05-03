@@ -26,6 +26,8 @@ public class EzUserPasswordCredential extends AbstractEzCredenttial implements S
 	
 	private String password;
 	
+	private String fromUrl;
+	
 	public EzUserPasswordCredential() {
 		
 	}
@@ -62,6 +64,7 @@ public class EzUserPasswordCredential extends AbstractEzCredenttial implements S
 			EzUserPasswordCredential instance = new EzUserPasswordCredential();
 			instance.username = request.getParameter(this.usernameParam) ;
 			instance.password = request.getParameter(this.passwordParam) ;
+			instance.fromUrl = request.getContextPath()+"?"+request.getParameter("service");
 			return instance;
 		}
 		return null;
@@ -70,5 +73,10 @@ public class EzUserPasswordCredential extends AbstractEzCredenttial implements S
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this).append(this.username).build();
+	}
+
+	@Override
+	public String fromUrl() {
+		return this.fromUrl;
 	}
 }

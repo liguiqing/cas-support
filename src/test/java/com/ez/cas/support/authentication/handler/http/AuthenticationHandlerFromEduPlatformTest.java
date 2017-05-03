@@ -41,7 +41,7 @@ public class AuthenticationHandlerFromEduPlatformTest  extends AbstractJUnit4Spr
 	public void test() throws Exception{
 		AuthenticationHandlerFromEduPlatform eduPlatform = new AuthenticationHandlerFromEduPlatform(orgSelector,homeUrl,appId,appKey);
 		CloseableHttpClient httpclient = HttpClients.createDefault();
-		String personid = eduPlatform.doAuthentication(httpclient, "OTM2MDMwNGNiMjg1NDQ4ZDE4YTI2MjAzODZhOGRmYTBlMTQ5MjI1MDI5NDQxOQ==");
+		String personid = eduPlatform.doAuthentication(httpclient, "bWE2MDgxZTdmNmIxZjQ1NTliMDNjMGM5ZDFhODY3NTNiMTQ5Mjc1MzAxNzU0Mw==");
 		if(personid != null) {
 			Map<String,Object> userInfo = eduPlatform.getUserInfo(httpclient, personid);
 			logger.debug(userInfo+"1");

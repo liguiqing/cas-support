@@ -88,6 +88,7 @@
     	        <value>SELECT id,userName name,pwd password FROM idm_user t1 WHERE t1.userName =?</value>
     	        <value>SELECT t1.id id,t1.userName name,t1.pwd password  FROM idm_user t1 INNER JOIN idm_userDetail t2 ON t1.id=t2.userId WHERE mobilePhone=?</value>
     	        <value>SELECT t1.id id,t1.userName name,t1.pwd password  FROM idm_user t1 INNER JOIN idm_userDetail t2 ON t1.id=t2.userId WHERE email=?</value>
+    	        <value>SELECT t1.id id,t1.userName name,t1.pwd password  FROM idm_user t1 INNER JOIN idm_userDetail t2 ON t1.id=t2.userId WHERE account=?</value>
     	    </list>
     	</property>
     	<property name="userDetailSql" value="SELECT b.id,b.userName,a.* FROM idm_userdetail a INNER JOIN idm_user b ON a.userId=b.id WHERE b.userName=?"></property>    	
@@ -141,11 +142,11 @@
             </list>
         </constructor-arg>
     </bean>
-  
+  <!--  
     <bean id="EzLoginController" class="com.ez.cas.support.web.EzCasLoginController">
         <constructor-arg index="0" ref="centralAuthenticationService"></constructor-arg>
 	    <constructor-arg index="1" ref="ticketGrantingTicketCookieGenerator"></constructor-arg>
 	    <constructor-arg index="2" ref="CredentialBuilder"></constructor-arg>
    </bean>    
-
+-->
 </beans>

@@ -34,6 +34,8 @@ public class PlatformPersonidCredential  extends AbstractEzCredenttial {
 	
 	private String platformUrl ;
 	
+	private String fromUrl;
+	
 	public PlatformPersonidCredential() {
 		
 	}
@@ -75,6 +77,7 @@ public class PlatformPersonidCredential  extends AbstractEzCredenttial {
 			credential.lt = request.getParameter(this.ltParam);
 			credential.execution = request.getParameter(this.executionParam);
 			credential.platformUrl = request.getParameter(this.platformUrlParam);
+			credential.fromUrl = request.getHeader("Referer");
 			return credential;
 		}
 		
@@ -84,5 +87,10 @@ public class PlatformPersonidCredential  extends AbstractEzCredenttial {
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this).append(this.personId).append(this.platformUrl).build();
+	}
+
+	@Override
+	public String fromUrl() {
+		return this.fromUrl;
 	}
 }

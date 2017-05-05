@@ -142,11 +142,11 @@
             </list>
         </constructor-arg>
     </bean>
-  <!--  
+  
     <bean id="EzLoginController" class="com.ez.cas.support.web.EzCasLoginController">
         <constructor-arg index="0" ref="centralAuthenticationService"></constructor-arg>
 	    <constructor-arg index="1" ref="ticketGrantingTicketCookieGenerator"></constructor-arg>
 	    <constructor-arg index="2" ref="CredentialBuilder"></constructor-arg>
    </bean>    
--->
+
 </beans>

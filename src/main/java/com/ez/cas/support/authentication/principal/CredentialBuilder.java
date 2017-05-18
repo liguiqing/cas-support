@@ -7,9 +7,12 @@ package com.ez.cas.support.authentication.principal;
 import java.util.Collection;
 import java.util.HashSet;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.jasig.cas.authentication.Credential;
+
 
 /**
  * 
@@ -29,11 +32,14 @@ public class CredentialBuilder {
 		credentials.add(credential);
 	}
 	
-	public Credential build(HttpServletRequest request) {
+	public Credential build(HttpServletRequest request,HttpServletResponse response) {
 		for(EzCredential c:this.credentials) {
 			Credential credential = c.newInstanceOf(request);
-			if(credential != null)
+			if(credential != null) {
+				Cookie cookie=new Cookie("logout-to",c.fromUrl());
+				response.addCookie(cookie);
 				return credential;
+			}
 		}
 		return null;
 	}

@@ -50,7 +50,7 @@ public class EzCasLoginController extends AbstractController{
 	}
 	
 	protected void bindTicketGrantingTicket(HttpServletRequest request, HttpServletResponse response)throws Exception {
-		Credential credential = this.credentialBuilder.build(request);
+		Credential credential = this.credentialBuilder.build(request,response);
 		if(credential == null) {
 			this.logger.warn("Credential is null !");
 			return ;

@@ -91,7 +91,14 @@
     	        <value>SELECT t1.id id,t1.userName name,t1.pwd password  FROM idm_user t1 INNER JOIN idm_userDetail t2 ON t1.id=t2.userId WHERE account=?</value>
     	    </list>
     	</property>
-    	<property name="userDetailSql" value="SELECT b.id,b.userName,a.* FROM idm_userdetail a INNER JOIN idm_user b ON a.userId=b.id WHERE b.userName=?"></property>    	
+    	<property name="userDetailSql">
+    	    <list>
+    	        <value>SELECT b.id,b.userName,a.* FROM idm_userdetail a INNER JOIN idm_user b ON a.userId=b.id WHERE b.userName=?</value>
+    	        <value>SELECT b.id,b.userName,a.* FROM idm_userdetail a INNER JOIN idm_user b ON a.userId=b.id WHERE mobilePhone=?</value>
+    	        <value>SELECT b.id,b.userName,a.* FROM idm_userdetail a INNER JOIN idm_user b ON a.userId=b.id WHERE email=?</value>
+    	        <value>SELECT b.id,b.userName,a.* FROM idm_userdetail a INNER JOIN idm_user b ON a.userId=b.id WHERE account=?</value>
+    	    </list>
+    	</property>
     </bean>    
     
     <bean id="InvalidOrgSelector" class="com.ez.cas.support.authentication.handler.http.InvalidOrgSelector">

@@ -32,13 +32,18 @@ public class AuthenticationHandlerFromDBTest extends AbstractJUnit4SpringContext
 	@Test
 	public void test()throws Exception{
 		assertNotNull(db);
-		Boolean b = db.doAuthentication("837ebd06d4774039bd5bd2a57f12e3c11", "123456");
-		assertTrue(!b);
-		b = db.doAuthentication("root", "123456");
+		Boolean b = db.doAuthentication("root", "root");
 		assertTrue(b);
+		b = db.doAuthentication("root@qq.com", "root");
+		assertTrue(b);
+		b = db.doAuthentication("13477776867", "root");
+		assertTrue(b);
+		
 		b = db.doAuthentication("root", "1234561");
 		assertTrue(!b);
 		Map<String,Object> user = db.getUserDetail("root");
 		assertTrue(Boolean.TRUE);
+		
+		//b = db.doAuthentication("root", "1234561");
 	}
 }

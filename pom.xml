@@ -130,7 +130,12 @@
 			<version>1.7.12</version>
 			<scope>compile</scope>
 		</dependency>
+			<dependency>
+				<groupId>com.alibaba</groupId>
+				<artifactId>druid</artifactId>
+				<version>1.0.18</version>
 
+			</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jul-to-slf4j</artifactId>
@@ -362,7 +367,22 @@
 			<properties>
 				<env>hncj</env>
 			</properties>
-		</profile>		
+		</profile>
+		<!-- 生产环境 海南昌江 -->
+		<profile>
+			<id>aliyun</id>
+			<properties>
+				<env>aliyun</env>
+			</properties>
+		</profile>
+		
+		<!--备用环境 红岭中学 -->
+		<profile>
+			<id>szhl</id>
+			<properties>
+				<env>szhl</env>
+			</properties>
+		</profile>							
 		<!-- 测试环境 -->
 		<profile>
 			<id>test</id>

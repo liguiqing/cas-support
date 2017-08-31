@@ -23,7 +23,7 @@ public class AuthenticationHandlerFromDB {
 	
 	private String[] sqls;
 	
-	private String userDetailSql ;
+	private String[] userDetailSql ;
 
 	private JdbcTemplate jdbcTemplate;
 	
@@ -55,9 +55,14 @@ public class AuthenticationHandlerFromDB {
 	
 	@Cacheable(value = "UserCache",key = "#username",unless="#result == null")
 	public Map<String, Object> getUserDetail(String username) {
-		Map<String,Object> user =  jdbcTemplate.queryForMap(this.userDetailSql, username);
-		user.put("from", "db");
-		return user;
+		for(String sql : this.userDetailSql) {
+			Map<String,Object> user = getUser(sql, username);
+			if(user != null) {
+				user.put("from", "db");
+				return user;
+			}
+		}
+		return null;
 	}
 
 	private Boolean validatePassword(Map<String,Object> user,String password) {
@@ -82,9 +87,10 @@ public class AuthenticationHandlerFromDB {
 		this.sqls = sqls;
 	}
 
-	public void setUserDetailSql(String userDetailSql) {
+	public void setUserDetailSql(String[] userDetailSql) {
 		this.userDetailSql = userDetailSql;
 	}
+
 	
 	
 }

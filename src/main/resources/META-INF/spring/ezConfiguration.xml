@@ -16,6 +16,8 @@
        	http://www.springframework.org/schema/task
         http://www.springframework.org/schema/task/spring-task.xsd  ">
     
+         <context:component-scan base-package="com.passportsoft.sso" />
+    
         <bean id="ds" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
         <property name="url" value="${jdbc.url}" />
         <property name="username" value="${jdbc.username}" />
@@ -27,11 +29,12 @@
         <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
         <property name="timeBetweenEvictionRunsMillis" value="60000" />
         <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
-        <property name="minEvictableIdleTimeMillis" value="300000" />
+        <property name="minEvictableIdleTimeMillis" value="1800000" />
         <property name="validationQuery" value="SELECT 'x'" />
+        <property name="numTestsPerEvictionRun" value="3" />
         <property name="testWhileIdle" value="true" />
-        <property name="testOnBorrow" value="false" />
-        <property name="testOnReturn" value="false" />
+        <property name="testOnBorrow" value="true" />
+        <property name="testOnReturn" value="true" />
         <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
         <property name="poolPreparedStatements" value="true" />
         <property name="maxPoolPreparedStatementPerConnectionSize" value="100" />
@@ -69,12 +72,11 @@
     <!-- 开启注解缓存支持 -->
     <cache:annotation-driven cache-manager="cacheManager" /> 
     <!--   +++++++缓存配置完成+++++++  -->
-    
-    
+
     <!-- 从数据库认证 -->
     <bean id="UserPasswordAuthenticationHandlerProxy" class="com.ez.cas.support.authentication.handler.UserPasswordAuthenticationHandlerProxy">
     	<constructor-arg index="0" ref="AuthenticationHandlerFromDB"></constructor-arg>
-    	<constructor-arg index="1" ref="PlatformPersonIdAuthenticationHandlerProxy"></constructor-arg>
+    	<constructor-arg index="1" ref="HSAuthenticationHandlerProxy"></constructor-arg>
     </bean>
     <bean id="ShiroMD5PasswordEncoder" class="com.ez.cas.support.authentication.handler.db.ShiroMD5PasswordEncoder">
         <property name="algorithmName" value="${user.password.algorithmName}" ></property>
@@ -99,29 +101,16 @@
     	        <value>SELECT b.id,b.userName,a.* FROM idm_userdetail a INNER JOIN idm_user b ON a.userId=b.id WHERE account=?</value>
     	    </list>
     	</property>
-    </bean>    
+    </bean>     
     
     <bean id="InvalidOrgSelector" class="com.ez.cas.support.authentication.handler.http.InvalidOrgSelector">
     	<constructor-arg index="0" ref="jdbcTemplate"></constructor-arg>
     </bean>
     
-    <!-- 通过天喻大数据中心认证 -->
-    <bean id="PlatformPersonIdAuthenticationHandlerProxy" class="com.ez.cas.support.authentication.handler.PlatformPersonIdAuthenticationHandlerProxy">
-     	<constructor-arg index="0" ref="AuthenticationHandlerFromPlatform"></constructor-arg>
-    	<constructor-arg index="1" ref="EduPlateformAuthenticationHandlerProxy"></constructor-arg>   
-    </bean>
-    <bean id="AuthenticationHandlerFromPlatform" class="com.ez.cas.support.authentication.handler.http.AuthenticationHandlerFromPlatform">
-        <constructor-arg index="0" ref="InvalidOrgSelector"></constructor-arg>
-        <constructor-arg index="1" value="${platform.db.userface}"></constructor-arg>          
-    </bean>
-    
-    <!-- 通过天喻教育云平台认证 -->
-    <bean id="EduPlateformAuthenticationHandlerProxy" class="com.ez.cas.support.authentication.handler.EduPlateformAuthenticationHandlerProxy">
-        <constructor-arg index="0" ref="EduPlatformBuilder"></constructor-arg>
-    </bean>
-    <bean id="EduPlatformBuilder" class="com.ez.cas.support.authentication.handler.EduPlatformBuilder">
-        <constructor-arg index="0" ref="jdbcTemplate"></constructor-arg>
-        <constructor-arg index="1" ref="InvalidOrgSelector"></constructor-arg>
+    <!-- 通过寰烁SSO认证 -->
+    <bean id="HSAuthenticationHandlerProxy" class="com.ez.cas.support.authentication.handler.HSAuthenticationHandlerProxy">
+     	<constructor-arg index="0" ref="InvalidOrgSelector"></constructor-arg>
+     	<property name="userInfoUrl" value="${user.hs.url}" ></property>
     </bean>
     
     <bean id="EasytntFaceAuthenticationHandler" class="com.ez.cas.support.authentication.handler.EasytntFaceAuthenticationHandler">
@@ -135,16 +124,8 @@
                     <constructor-arg index="0" value="${user.name.param}"></constructor-arg>
                     <constructor-arg index="1" value="${user.password.param}"></constructor-arg>
                 </bean>
-                <bean class="com.ez.cas.support.authentication.principal.EduPlatformCredential">
-                    <property name="tkParam" value="${user.tk.param}"></property>
-                    <property name="ticketParam" value="${user.ticket.param}"></property>
-                    <property name="platformcodeParam" value="${user.platformcode.param}"></property>
-                </bean>
-                <bean class="com.ez.cas.support.authentication.principal.PlatformPersonidCredential">
-                    <constructor-arg index="0" value="${user.personid.param}"></constructor-arg>
-                    <constructor-arg index="1" value="${user.lt.param}"></constructor-arg>
-                    <constructor-arg index="2" value="${user.execution.param}"></constructor-arg>        
-                    <constructor-arg index="3" value="${user.platformUrl.param}"></constructor-arg>                        
+                <bean class="com.ez.cas.support.authentication.principal.HSEzCredential">
+                 <constructor-arg index="0" value="${plamtform.home.url}"></constructor-arg>
                 </bean>
             </list>
         </constructor-arg>

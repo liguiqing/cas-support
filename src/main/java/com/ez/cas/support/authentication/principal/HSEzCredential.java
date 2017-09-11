@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.jasig.cas.authentication.Credential;
 
+import com.jayway.jsonpath.JsonPath;
 import com.passportsoft.sso.PassportClientUtil;
 
 /**
@@ -23,6 +24,10 @@ public class HSEzCredential extends AbstractEzCredenttial {
 	
 	private String fromUrl;
 	
+	private String userJson;
+	
+	private String id;
+	
 	public void setPlatformPath(String platformPath) {
 		this.platformPath = platformPath;
 	}
@@ -37,20 +42,30 @@ public class HSEzCredential extends AbstractEzCredenttial {
 	
 	@Override
 	public String toString() {
-		return this.fromUrl;
+		return this.fromUrl+this.userJson;
 	}
 
 	@Override
 	public String getId() {
-		return this.fromUrl;
+		return this.id;
+	}
+	
+	public String getUserJson() {
+		return userJson;
 	}
 
 	@Override
 	public Credential newInstanceOf(HttpServletRequest request) {
 		if(request.getRequestURL().indexOf(this.platformPath) > 0){
-			HSEzCredential credential = new HSEzCredential();
-			credential.fromUrl = this.fromUrl;
-			return credential;	
+			String userJson = PassportClientUtil.getUser();
+			if(userJson !=  null) {
+				String id =  JsonPath.parse(userJson).read("$.userid")+"";
+				HSEzCredential credential = new HSEzCredential();
+				credential.fromUrl = this.fromUrl;
+				credential.id = id;
+				credential.userJson = userJson;
+				return credential;	
+			}
 		}
 		return null;
 	}

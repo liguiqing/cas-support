@@ -59,9 +59,8 @@ public class HSAuthenticationHandlerProxy extends AbstractAuthenticationHandlerP
 	protected Map<String, Object> authentication(EzCredential credential) {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
 		try {
-			String userJson = PassportClientUtil.getUser();
-
-			String personId =  JsonPath.parse(userJson).read("$.userid")+"";
+			HSEzCredential hsCredential = (HSEzCredential)credential;
+			String personId =  hsCredential.getId();
 			String userInfoJson = getUser(httpclient, personId);
 			
 			DocumentContext dc = JsonPath.parse(userInfoJson);

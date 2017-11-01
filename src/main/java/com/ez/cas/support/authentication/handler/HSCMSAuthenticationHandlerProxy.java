@@ -25,6 +25,7 @@ import org.apache.http.util.EntityUtils;
 import org.jasig.cas.authentication.Credential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -56,6 +57,8 @@ public class HSCMSAuthenticationHandlerProxy extends AbstractAuthenticationHandl
 	
 	private String insertUserDetailSQL= "INSERT INTO idm_userdetail(nickName,isOnLine,userType,userId,account)"
 			+ " VALUES (?,?,?,?,?)";
+	
+    private String userDetailSql = "SELECT b.id,b.userName,a.* FROM idm_userdetail a INNER JOIN idm_user b ON a.userId=b.id WHERE b.userName=?";
 	
 	private  JdbcTemplate jdbcTemplate;
 	
@@ -89,12 +92,10 @@ public class HSCMSAuthenticationHandlerProxy extends AbstractAuthenticationHandl
 			if(!hasUser(dc)) {
 				createUser(dc);
 			}
-
-			HashMap<String,Object> user = new HashMap<>();
+			String userName =  dc.read("$.data.userName")+"";
+			Map<String,Object> user =getUserDetail(userName);
 			
-			
-			user.put("user",dc.read("$.data"));
-			user.put("from","hs");
+			user.put("from", "db");
 			return user;
 		}catch(Exception e) {
 			logger.error(e.getMessage());
@@ -136,6 +137,26 @@ public class HSCMSAuthenticationHandlerProxy extends AbstractAuthenticationHandl
 			
 		}, keyHolder);
 		return keyHolder.getKey().longValue();
+	}
+	
+	private Map<String, Object> getUser(String sql, String username) {
+		try {
+			return jdbcTemplate.queryForMap(sql, username);
+		}catch(Exception e) {
+			logger.warn("User not Fond with '{}' arg '{}'",sql,username);
+		}
+		return null;
+	}
+	
+	private Map<String, Object> getUserDetail(String username) {
+
+			Map<String,Object> user = getUser(this.userDetailSql, username);
+			if(user != null) {
+				user.put("from", "db");
+				return user;
+			}
+		
+		return null;
 	}
 	
 	private void updatePwd(String pwd,long userId) {

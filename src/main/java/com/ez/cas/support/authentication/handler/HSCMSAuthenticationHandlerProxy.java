@@ -112,7 +112,7 @@ public class HSCMSAuthenticationHandlerProxy extends AbstractAuthenticationHandl
 		String userName =  dc.read("$.data.userName")+"";
 		String rolType =  dc.read("$.data.roleType")+"";
 		String userRealName =  dc.read("$.data.userName")+"";
-		String sysRole = "0".equals(rolType)?"oprate":"super";
+		String sysRole = "0".equals(rolType)?"operate":"super";
 		
 		long userId = insertUser(userName,sysRole);
 		String password = pwdEndocer.encode(userId+"", "123456");

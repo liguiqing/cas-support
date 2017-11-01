@@ -42,8 +42,15 @@ public class HSAuthenticationHandlerProxy extends AbstractAuthenticationHandlerP
 	
 	private InvalidOrgSelector orgSelector;
 	
+	private AuthenticationHandlerProxy cmsUserProxy;
+	
 	public HSAuthenticationHandlerProxy(InvalidOrgSelector orgSelector) {
 		this.orgSelector = orgSelector;
+	}
+	
+	public HSAuthenticationHandlerProxy(InvalidOrgSelector orgSelector,AuthenticationHandlerProxy cmsUserProxy) {
+		this.orgSelector = orgSelector;
+		this.cmsUserProxy = cmsUserProxy;
 	}
 
 	public void setUserInfoUrl(String userInfoUrl) {
@@ -61,9 +68,16 @@ public class HSAuthenticationHandlerProxy extends AbstractAuthenticationHandlerP
 		try {
 			HSEzCredential hsCredential = (HSEzCredential)credential;
 			String personId =  hsCredential.getId();
+			
+			String userType =  JsonPath.parse(hsCredential.getUserJson()).read("$.usertype")+"";
+			if("1".equals(userType)) {//管理员调用CMS 认证
+				return this.cmsUserProxy.doAuthentication(hsCredential);
+			}
+			
 			String userInfoJson = getUser(httpclient, personId);
 			
 			DocumentContext dc = JsonPath.parse(userInfoJson);
+
 			
 			String schoolId = dc.read("$.data.schoolId")+"";
 			if(!this.orgSelector.isValidOrg(schoolId)) {
@@ -74,7 +88,7 @@ public class HSAuthenticationHandlerProxy extends AbstractAuthenticationHandlerP
 			user.put("from","hs");
 			return user;
 		}catch(Exception e) {
-			
+			logger.error(e.getMessage());
 		}
 		return null;
 	}

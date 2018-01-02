@@ -52,14 +52,14 @@ public class InvalidOrgSelector {
 	}
 	
 	private String getSchoolYear(Calendar now) {
-		if(now.get(Calendar.MONTH)<8 && now.get(Calendar.MONTH)>1) {
+		if(now.get(Calendar.MONTH)<=7 && now.get(Calendar.MONTH)>=0) {
 			return now.get(Calendar.YEAR)-1 + "-" +  now.get(Calendar.YEAR);
 		}
 		return now.get(Calendar.YEAR) + "-" + (now.get(Calendar.YEAR) +1);
 	}
 	
 	private int getSchoolTerm(Calendar now) {
-		if(now.get(Calendar.MONTH)<8 && now.get(Calendar.MONTH)>1) {
+		if(now.get(Calendar.MONTH)<=7 && now.get(Calendar.MONTH)>=1) {
 			return 2;
 		}
 		return 1;

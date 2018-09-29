@@ -113,7 +113,6 @@
      	<constructor-arg index="1" ref="ShiroMD5PasswordEncoder"></constructor-arg>
      	<property name="userInfoUrl" value="${user.hs.cms.url}" ></property>
     </bean>
-    
     <bean id="HSAuthenticationHandlerProxy" class="com.ez.cas.support.authentication.handler.HSAuthenticationHandlerProxy">
      	<constructor-arg index="0" ref="InvalidOrgSelector"></constructor-arg>
      	<constructor-arg index="1" ref="HSCMSAuthenticationHandlerProxy"></constructor-arg>
@@ -131,7 +130,7 @@
                     <constructor-arg index="0" value="${user.name.param}"></constructor-arg>
                     <constructor-arg index="1" value="${user.password.param}"></constructor-arg>
                 </bean>
-                <bean class="com.ez.cas.support.authentication.principal.HSEzCredential">
+                <bean class="com.ez.cas.support.authentication.principal.HSYCEzCredential">
                  <constructor-arg index="0" value="${plamtform.home.url}"></constructor-arg>
                 </bean>
             </list>
@@ -147,5 +146,7 @@
    <bean id="HsLogoutController" class="com.ez.cas.support.web.HsLogoutController">
    		<property name="logoutFollowService" value="${user.logout.success.url}"></property>
    </bean> 
+
+   <bean id="HsYCLogoutController" class="com.ez.cas.support.web.HsYCLogoutController"></bean> 
 
 </beans>

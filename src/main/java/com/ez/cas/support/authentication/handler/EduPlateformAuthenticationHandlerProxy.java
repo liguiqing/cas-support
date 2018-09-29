@@ -49,6 +49,7 @@ public class EduPlateformAuthenticationHandlerProxy extends AbstractAuthenticati
 		try {
 			String personId = eduPlatform.doAuthentication(httpclient, myCredential.getTicket());
 			if(personId !=null && personId.length() >0) {
+				myCredential.setPersonId(personId);
 				Map<String,Object> result = eduPlatform.getUserInfo(httpclient, personId);
 				return result;
 			}

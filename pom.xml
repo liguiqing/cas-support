@@ -53,6 +53,11 @@
 			<classifier>hs-passport-client</classifier>
 		</dependency>
 		<dependency>
+		  <groupId>com.jiasheng.openapi</groupId>
+		  <artifactId>jiasheng-api-sdk-java-saas</artifactId>
+		  <version>1.4.5</version>
+		</dependency>		
+		<dependency>
             <groupId>org.springframework.security.oauth</groupId>
             <artifactId>spring-security-oauth2</artifactId>
             <version>2.2.0.RELEASE</version>
@@ -415,14 +420,35 @@
 				<env>hs</env>
 			</properties>
 		</profile>
-		
 		<!--寰烁 生产 -->
 		<profile>
 			<id>hs-runtime</id>
 			<properties>
 				<env>hs-runtime</env>
 			</properties>
-		</profile>											
+		</profile>
+		<!--寰烁 运城开发 -->
+		<profile>
+			<id>hs-yc-dev</id>
+			<properties>
+				<env>hs-yc-dev</env>
+			</properties>
+		</profile>		
+		<!--寰烁 运城测试 -->
+		<profile>
+			<id>hs-yc</id>
+			<properties>
+				<env>hs-yc</env>
+			</properties>
+		</profile>
+		<!--寰烁 运城生产 -->
+		<profile>
+			<id>hs-yc-runtime</id>
+			<properties>
+				<env>hs-yc-runtime</env>
+			</properties>
+		</profile>		
+													
 		<!-- 测试环境 -->
 		<profile>
 			<id>test</id>

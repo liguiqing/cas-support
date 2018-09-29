@@ -57,7 +57,7 @@ public class HSEzCredential extends AbstractEzCredenttial {
 	@Override
 	public Credential newInstanceOf(HttpServletRequest request) {
 		if(request.getRequestURL().indexOf(this.platformPath) > 0){
-			String userJson = PassportClientUtil.getUser();
+			String userJson = getUserJson(request);
 			if(userJson !=  null) {
 				String id =  JsonPath.parse(userJson).read("$.userid")+"";
 				HSEzCredential credential = new HSEzCredential();
@@ -68,6 +68,10 @@ public class HSEzCredential extends AbstractEzCredenttial {
 			}
 		}
 		return null;
+	}
+	
+	protected String getUserJson(HttpServletRequest request) {
+		return PassportClientUtil.getUser();
 	}
 
 	@Override

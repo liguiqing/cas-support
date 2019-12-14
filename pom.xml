@@ -11,8 +11,8 @@
 	
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.build.sourceVersion>1.7</project.build.sourceVersion>
-		<project.build.targetVersion>1.7</project.build.targetVersion>
+		<project.build.sourceVersion>1.8</project.build.sourceVersion>
+		<project.build.targetVersion>1.8</project.build.targetVersion>
 	</properties>
 	
 	<dependencies>
@@ -46,16 +46,17 @@
 			<version>1.10.19  </version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>hs</groupId>
-			<artifactId>passport-client</artifactId>
-			<version>1.0</version>
-			<classifier>hs-passport-client</classifier>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>hs</groupId>-->
+<!--			<artifactId>passport-client</artifactId>-->
+<!--			<version>1.0</version>-->
+<!--			<classifier>hs-passport-client</classifier>-->
+<!--		</dependency>-->
 		<dependency>
 		  <groupId>com.jiasheng.openapi</groupId>
 		  <artifactId>jiasheng-api-sdk-java-saas</artifactId>
-		  <version>1.4.5</version>
+		  <version>1.7.6</version>
+		  <systemPath>${basedir}/lib/jiasheng-api-sdk-java-saas-1.7.6.jar</systemPath>
 		</dependency>		
 		<dependency>
             <groupId>org.springframework.security.oauth</groupId>
@@ -457,7 +458,7 @@
 			</properties>
 		</profile>
 	</profiles>
-
+    <!--
 	<distributionManagement>
 		<repository>
 			<id>nexus-releases</id>
@@ -470,6 +471,7 @@
 			<url>http://192.168.1.230:9000/nexus/content/repositories/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
+	-->
 	<repositories>
 		<repository>
 			<id>local-lib</id>

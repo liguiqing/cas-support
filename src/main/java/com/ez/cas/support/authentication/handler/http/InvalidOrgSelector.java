@@ -40,14 +40,9 @@ public class InvalidOrgSelector {
 		int term = getSchoolTerm(now);
 		Object[] args = new Object[] {orgId,year,term};
 		logger.debug(" Is Org  activee {}  {} " ,sql,args);
-		List bs = jdbcTemplate.query(sql,args, new RowMapper<Boolean>() {
-			@Override
-			public Boolean mapRow(ResultSet rs, int arg1) throws SQLException {
-				int i = rs.getInt(1);
-				return i>0;
-			}
-		});
-		
+
+		List bs = jdbcTemplate.query(sql,args,(rs,index)->rs.getInt(1) > 0);
+
 		return bs != null && bs.size()>0;
 	}
 	

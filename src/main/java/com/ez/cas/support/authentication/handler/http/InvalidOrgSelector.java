@@ -4,16 +4,13 @@
  **/
 package com.ez.cas.support.authentication.handler.http;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
+
+import java.util.Calendar;
+import java.util.List;
 
 /**
  * 查询用户所在机构是否有权限使用系统

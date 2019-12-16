@@ -4,15 +4,13 @@
  **/
 package com.ez.cas.support.web;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.jiasheng.api.utils.SsoUtil;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.AbstractController;
 
-import com.jiasheng.api.utils.SsoUtil;
-import com.passportsoft.sso.PassportClientUtil;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 

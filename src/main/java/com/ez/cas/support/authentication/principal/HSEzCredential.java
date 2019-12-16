@@ -4,12 +4,15 @@
  **/
 package com.ez.cas.support.authentication.principal;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.jasig.cas.authentication.Credential;
-
 import com.jayway.jsonpath.JsonPath;
-import com.passportsoft.sso.PassportClientUtil;
+import com.jiasheng.api.JiashengApiException;
+import com.jiasheng.api.JiashengOAuthException;
+import com.jiasheng.api.utils.SsoUtil;
+import org.jasig.cas.authentication.Credential;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 山西寰烁单点登录凭证
@@ -19,6 +22,7 @@ import com.passportsoft.sso.PassportClientUtil;
  * @Version 
  */
 public class HSEzCredential extends AbstractEzCredenttial {
+	private static Logger logger = LoggerFactory.getLogger(HSEzCredential.class);
 
 	private String platformPath = "hslogin" ;
 	
@@ -71,7 +75,14 @@ public class HSEzCredential extends AbstractEzCredenttial {
 	}
 	
 	protected String getUserJson(HttpServletRequest request) {
-		return PassportClientUtil.getUser();
+		try {
+			return SsoUtil.getUser(request);
+		} catch (JiashengApiException e) {
+			logger.error("SSO Failure  JiashengApiException {}",e.getMessage());
+		} catch (JiashengOAuthException e) {
+			logger.error("SSO Failure JiashengOAuthException {}",e.getMessage());
+		}
+		return null;
 	}
 
 	@Override

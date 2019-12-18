@@ -4,15 +4,12 @@
  **/
 package com.ez.cas.support.authentication.handler;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import com.ez.cas.support.HttpClientBuilder;
+import com.ez.cas.support.authentication.handler.db.ShiroMD5PasswordEncoder;
+import com.ez.cas.support.authentication.principal.EzCredential;
+import com.ez.cas.support.authentication.principal.HSEzCredential;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
@@ -20,22 +17,22 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.jasig.cas.authentication.Credential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
-import com.ez.cas.support.authentication.handler.db.ShiroMD5PasswordEncoder;
-import com.ez.cas.support.authentication.principal.EzCredential;
-import com.ez.cas.support.authentication.principal.HSEzCredential;
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+import java.util.Map;
 
 /**
  *  寰烁CMS用户登录
@@ -82,7 +79,7 @@ public class HSCMSAuthenticationHandlerProxy extends AbstractAuthenticationHandl
 
 	@Override
 	protected Map<String, Object> authentication(EzCredential credential) {
-		CloseableHttpClient httpclient = HttpClients.createDefault();
+		CloseableHttpClient httpclient = HttpClientBuilder.getInstance().createHttpClient();
 		try {
 			HSEzCredential hsCredential = (HSEzCredential)credential;
 			String personId =  hsCredential.getId();

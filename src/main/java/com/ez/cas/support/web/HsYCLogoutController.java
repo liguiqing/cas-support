@@ -39,7 +39,7 @@ public class HsYCLogoutController extends AbstractController{
 		String service = ServletRequestUtils.getStringParameter(request, "service", null);
 		if(service == null)
 			service = ServletRequestUtils.getStringParameter(request, "ezService", "");
-		return "redirect:/hsyclogin" + (service.length() > 0 ? "?service=" + service : "");
+		return "redirect:/hslogin" + (service.length() > 0 ? "?service=" + service : "");
 	}
 
 }

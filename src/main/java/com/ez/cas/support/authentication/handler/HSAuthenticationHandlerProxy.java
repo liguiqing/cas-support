@@ -4,41 +4,27 @@
  **/
 package com.ez.cas.support.authentication.handler;
 
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.ez.cas.support.HttpClientBuilder;
+import com.ez.cas.support.authentication.handler.http.InvalidOrgSelector;
+import com.ez.cas.support.authentication.principal.EzCredential;
+import com.ez.cas.support.authentication.principal.HSEzCredential;
+import com.jayway.jsonpath.DocumentContext;
+import com.jayway.jsonpath.JsonPath;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.config.Registry;
-import org.apache.http.config.RegistryBuilder;
-import org.apache.http.conn.HttpClientConnectionManager;
-import org.apache.http.conn.socket.ConnectionSocketFactory;
-import org.apache.http.conn.socket.PlainConnectionSocketFactory;
-import org.apache.http.conn.ssl.NoopHostnameVerifier;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
 import org.jasig.cas.authentication.Credential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.ez.cas.support.authentication.handler.http.InvalidOrgSelector;
-import com.ez.cas.support.authentication.principal.EzCredential;
-import com.ez.cas.support.authentication.principal.HSEzCredential;
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 寰烁认证处理器
@@ -74,34 +60,9 @@ public class HSAuthenticationHandlerProxy extends AbstractAuthenticationHandlerP
 		return credential instanceof HSEzCredential;
 	}
 
-	private HttpClientConnectionManager getConnectionManager(){
-		SSLConnectionSocketFactory sslsf = null;
-		SSLContextBuilder builder = null;
-
-			builder = new SSLContextBuilder();
-			//全部信任 不做身份鉴定
-		try {
-			builder.loadTrustMaterial(null, (TrustStrategy) (x509Certificates, s) -> true);
-			sslsf = new SSLConnectionSocketFactory(builder.build(), new String[]{"SSLv2Hello", "SSLv3", "TLSv1", "TLSv1.2"}, null, NoopHostnameVerifier.INSTANCE);
-
-			Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory> create()
-					.register("https", sslsf)
-					.register("http", new PlainConnectionSocketFactory())
-					.build();
-			return new PoolingHttpClientConnectionManager(socketFactoryRegistry);
-		} catch (NoSuchAlgorithmException e) {
-			logger.error(e.getMessage());
-		} catch (KeyStoreException e) {
-			logger.error(e.getMessage());
-		} catch (KeyManagementException e) {
-			logger.error(e.getMessage());
-		}
-		return null;
-	}
-
 	@Override
 	protected Map<String, Object> authentication(EzCredential credential) {
-		CloseableHttpClient httpclient = HttpClients.custom().setConnectionManager(getConnectionManager()).build();
+		CloseableHttpClient httpclient = HttpClientBuilder.getInstance().createHttpClient();
 		try {
 			HSEzCredential hsCredential = (HSEzCredential)credential;
 			String personId =  hsCredential.getId();
@@ -112,10 +73,8 @@ public class HSAuthenticationHandlerProxy extends AbstractAuthenticationHandlerP
 			}
 			
 			String userInfoJson = getUser(httpclient, personId);
-			
 			DocumentContext dc = JsonPath.parse(userInfoJson);
 
-			
 			String schoolId = dc.read("$.data.schoolId")+"";
 			if(!this.orgSelector.isValidOrg(schoolId)) {
 				return null;

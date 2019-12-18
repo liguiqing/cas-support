@@ -4,18 +4,13 @@
  **/
 package com.ez.cas.support.authentication.handler;
 
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-
+import com.ez.cas.support.HttpClientBuilder;
+import com.jayway.jsonpath.JsonPath;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.config.Registry;
@@ -27,7 +22,7 @@ import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.EntityUtils;
@@ -35,7 +30,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jayway.jsonpath.JsonPath;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * 
@@ -49,12 +51,17 @@ public class HSAuthenticationHandlerProxyTest {
 	private String userInfoUrl = "https://demo.userapi.hseduyun.com/usersApi/getTecherLoginBaseInfo?userId=";
 	@Test
 	public void testGetUserInfo()throws Exception{
-		CloseableHttpClient httpclient = HttpClients.custom().setConnectionManager(getConnectionManager()).build();
-		String userJson = getUser(httpclient,"2246370");
+		HttpClientBuilder httpClientBuilder = HttpClientBuilder.getInstance();
+		if(userInfoUrl.startsWith("https")){
+			httpClientBuilder.setSslabled(true);
+		}
+		CloseableHttpClient httpclient = httpClientBuilder.createHttpClient();
+		String personId = "2246370";
+		String userJson = getUser(httpclient,personId);
 		
 		Map user = JsonPath.parse(userJson).read("$.data");
 		assertNotNull(user);
-		assertEquals(user.get("userId"),334);
+		assertEquals(personId,String.valueOf(user.get("userId")));
 	}
 	
 	private String getUser(CloseableHttpClient httpclient, String personId) {

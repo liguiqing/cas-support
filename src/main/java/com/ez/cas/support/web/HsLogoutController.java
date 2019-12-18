@@ -25,6 +25,7 @@ public class HsLogoutController extends AbstractController{
 	@Override
 	protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
 			throws Exception {
+		logger.debug("Logout to " + logoutFollowService);
 		SsoUtil.logOut(request,response,logoutFollowService);
 		String viewName = getSignInView(request);
 		return new ModelAndView(viewName);
@@ -34,6 +35,7 @@ public class HsLogoutController extends AbstractController{
 		String service = ServletRequestUtils.getStringParameter(request, "service", null);
 		if(service == null)
 			service = ServletRequestUtils.getStringParameter(request, "ezService", "");
+		logger.debug("log out to "+service+" after hslogout ");
 		return "redirect:/hslogin" + (service.length() > 0 ? "?service=" + service : "");
 	}
 

@@ -7,6 +7,7 @@ package com.ez.cas.support.web;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.jiasheng.api.utils.SsoUtil;
 import org.jasig.cas.CentralAuthenticationService;
 import org.jasig.cas.authentication.Credential;
 import org.jasig.cas.ticket.TicketGrantingTicket;

@@ -32,15 +32,16 @@ public class InvalidOrgSelector {
 	
 	@Cacheable(value = "ValidOrgsCache",key = "#orgId",unless="#result == false")
 	public Boolean isValidOrg(String orgId) {
-		Calendar now = Calendar.getInstance();
-		String year = getSchoolYear(now);
-		int term = getSchoolTerm(now);
-		Object[] args = new Object[] {orgId,year,term};
-		logger.debug(" Is Org  activee {}  {} " ,sql,args);
-
-		List bs = jdbcTemplate.query(sql,args,(rs,index)->rs.getInt(1) > 0);
-
-		return bs != null && bs.size()>0;
+		return true;
+//		Calendar now = Calendar.getInstance();
+//		String year = getSchoolYear(now);
+//		int term = getSchoolTerm(now);
+//		Object[] args = new Object[] {orgId,year,term};
+//		logger.debug(" Is Org  activee {}  {} " ,sql,args);
+//
+//		List bs = jdbcTemplate.query(sql,args,(rs,index)->rs.getInt(1) > 0);
+//
+//		return bs != null && bs.size()>0;
 	}
 	
 	private String getSchoolYear(Calendar now) {

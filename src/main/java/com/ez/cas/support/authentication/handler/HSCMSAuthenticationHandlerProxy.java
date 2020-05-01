@@ -10,12 +10,14 @@ import com.ez.cas.support.authentication.principal.EzCredential;
 import com.ez.cas.support.authentication.principal.HSEzCredential;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
+import com.jiasheng.api.utils.SsoUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.jasig.cas.authentication.Credential;
@@ -26,6 +28,7 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -166,11 +169,16 @@ public class HSCMSAuthenticationHandlerProxy extends AbstractAuthenticationHandl
 	
 	private String getUser(CloseableHttpClient httpclient, String personId) {
 		try {
-			String url = this.userInfoUrl+personId+"&userType=1";
-			HttpGet httpget = new HttpGet(url);
-			httpget.setHeader("Content-Type", "application/json; charset=utf-8");
-			logger.debug("executing request {}", httpget.getURI());
-			CloseableHttpResponse response = httpclient.execute(httpget);
+			HttpServletRequest request = SsoUtil.getRequest();
+			String token = SsoUtil.getAccessTokenInSession(request);
+			String tenantId = SsoUtil.getTenantId(request);
+			String url = String.format("%s?userType=1&access_token=%s&tenantId=%s&user_id=%s",
+					this.userInfoUrl,token,tenantId,personId);
+			HttpPost post = new HttpPost(url);
+			post.setHeader("Content-Type", "application/x-www-form-urlencoded;charset=utf-8 ");
+			logger.debug("executing request {}", post.getURI());
+
+			CloseableHttpResponse response = httpclient.execute(post);
 			try {
 				StatusLine status = response.getStatusLine();
 				if (status.getStatusCode() != 200) {
@@ -182,7 +190,7 @@ public class HSCMSAuthenticationHandlerProxy extends AbstractAuthenticationHandl
 				if (entity != null) {
 					String json = EntityUtils.toString(entity);
 					
-					if (!"200".equals( JsonPath.read(json, "$.code"))) {
+					if (!"0".equals( JsonPath.read(json, "$.code"))) {
 						logger.error("Principal ID from {} ",url);
 						return null;
 					}

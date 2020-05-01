@@ -129,6 +129,7 @@
         <constructor-arg index="0" ref="jdbcTemplate"></constructor-arg>
         <constructor-arg index="1" ref="ShiroMD5PasswordEncoder"></constructor-arg>
         <property name="userInfoUrl" value="${user.hs.cms.url}"></property>
+
     </bean>
     <bean id="HSAuthenticationHandlerProxy"
           class="com.ez.cas.support.authentication.handler.HSAuthenticationHandlerProxy">

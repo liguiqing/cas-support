@@ -56,8 +56,7 @@
 		  <groupId>com.jiasheng.openapi</groupId>
 		  <artifactId>jiasheng-api-sdk-java-saas</artifactId>
 		  <version>1.7.6</version>
-		  <systemPath>${basedir}/lib/jiasheng-api-sdk-java-saas-1.7.6.jar</systemPath>
-		</dependency>		
+		</dependency>
 		<dependency>
             <groupId>org.springframework.security.oauth</groupId>
             <artifactId>spring-security-oauth2</artifactId>

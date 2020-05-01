@@ -10,20 +10,27 @@ import com.ez.cas.support.authentication.principal.EzCredential;
 import com.ez.cas.support.authentication.principal.HSEzCredential;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
-import org.apache.http.HttpEntity;
-import org.apache.http.ParseException;
-import org.apache.http.StatusLine;
+import com.jiasheng.api.utils.SsoUtil;
+import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jasig.cas.authentication.Credential;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,7 +48,7 @@ public class HSAuthenticationHandlerProxy extends AbstractAuthenticationHandlerP
 	private InvalidOrgSelector orgSelector;
 	
 	private AuthenticationHandlerProxy cmsUserProxy;
-	
+
 	public HSAuthenticationHandlerProxy(InvalidOrgSelector orgSelector) {
 		this.orgSelector = orgSelector;
 	}
@@ -89,17 +96,25 @@ public class HSAuthenticationHandlerProxy extends AbstractAuthenticationHandlerP
 		return null;
 	}
 
+	private HttpServletRequest getRequest() {
+		return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+	}
+
 	private String getUser(CloseableHttpClient httpclient, String personId) {
 		try {
-			String url = this.userInfoUrl+personId;
-			HttpGet httpget = new HttpGet(url);
-			httpget.setHeader("Content-Type", "application/json; charset=utf-8");
-			logger.debug("executing request {}", httpget.getURI());
-			CloseableHttpResponse response = httpclient.execute(httpget);
+			HttpServletRequest request = getRequest();
+			String token = SsoUtil.getAccessTokenInSession(request);
+			String tenantId = SsoUtil.getTenantId(request);
+			String url = String.format("%s?access_token=%s&tenantId=%s&user_id=%s",
+					this.userInfoUrl,token,tenantId,personId);
+			HttpPost post = new HttpPost(url);
+			post.setHeader("Content-Type", "application/x-www-form-urlencoded;charset=utf-8 ");
+			logger.debug("executing request {}", post.getURI());
+			CloseableHttpResponse response = httpclient.execute(post);
 			try {
 				StatusLine status = response.getStatusLine();
 				if (status.getStatusCode() != 200) {
-					logger.error("Principal ID from {} ",url);
+					logger.error("Principal ID from {} ",post.getURI());
 					return null;
 				}
 					
@@ -107,11 +122,11 @@ public class HSAuthenticationHandlerProxy extends AbstractAuthenticationHandlerP
 				if (entity != null) {
 					String json = EntityUtils.toString(entity);
 					
-					if (!"200".equals( JsonPath.read(json, "$.code"))) {
-						logger.error("Principal ID from {} ",url);
+					if (!"0".equals( JsonPath.read(json, "$.code"))) {
+						logger.error("Principal ID from {} ",post.getURI());
 						return null;
 					}
-					logger.debug("User from {}  is {}",this.userInfoUrl+personId,json);
+					logger.debug("User from {}  is {}",post.getURI(),json);
 					return json;
 				}
 			} finally {

@@ -11,14 +11,13 @@ import com.ez.cas.support.authentication.principal.HSEzCredential;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jiasheng.api.utils.SsoUtil;
-import org.apache.http.*;
+import org.apache.http.HttpEntity;
+import org.apache.http.ParseException;
+import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jasig.cas.authentication.Credential;
 import org.slf4j.Logger;
@@ -28,9 +27,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -97,7 +94,7 @@ public class HSAuthenticationHandlerProxy extends AbstractAuthenticationHandlerP
 	}
 
 	private HttpServletRequest getRequest() {
-		return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		return SsoUtil.getRequest();
 	}
 
 	private String getUser(CloseableHttpClient httpclient, String personId) {

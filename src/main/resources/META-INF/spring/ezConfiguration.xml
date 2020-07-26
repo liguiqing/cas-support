@@ -163,6 +163,11 @@
         <constructor-arg index="2" ref="CredentialBuilder"></constructor-arg>
     </bean>
 
+    <bean id="TokenController" class="com.ez.cas.support.web.TokenController">
+        <property name="tenantId" value="${user.hs.tenantId}"></property>
+        <property name="clientId" value="${user.hs.clientId}"></property>
+        <property name="clientSecret" value="${user.hs.clientSecret}"></property>
+    </bean>
     <bean id="HsLogoutController" class="com.ez.cas.support.web.HsLogoutController">
         <property name="logoutFollowService" value="${user.logout.success.url}"></property>
     </bean>
